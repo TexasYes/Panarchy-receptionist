@@ -3,7 +3,10 @@
   "first_sentence": "Thank you for calling Panarchy. This is Riley. How can I help you today?",
   "model": "enhanced",
   "voice_settings": "{\"speed\":0.7}",
-  "tools": [],
+  "tools": [
+    "TL-35f4a12d-13e0-49ec-b0b6-a0bbe28bb9c7",
+    "TL-cda5ae88-b4d5-4a02-ba87-cfd6ca531742"
+  ],
   "interruption_threshold": 1500,
   "block_interruptions": null,
   "max_duration": 10,
