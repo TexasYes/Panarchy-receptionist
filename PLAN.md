@@ -40,7 +40,7 @@
 
 ## 🧠 Inherited gotchas (from dialog-receptionist, still apply)
 
-- **`HAPI_TOKEN` and `VAPI_SERVER_SECRET`** are different things; the latter is the Bland-tool ↔ Railway shared secret. Same name preserved for code-path parity.
+- **`WEBHOOK_SHARED_SECRET`** is the Bland-tool ↔ Railway shared secret. Renamed from Dialog's `VAPI_SERVER_SECRET` since Panarchy is greenfield on Bland (no Vapi involvement). If you ever port code back to Dialog, that env var name still differs there.
 - **Bland's WAF**: Node TLS fingerprint blocked → `setup-bland-agent.js` shells out to `curl` and uses a cookie jar. Don't rewrite this.
 - **`block_interruptions: true` blocks legitimate caller responses** — keep null/false.
 - **`interruption_threshold: 100` cuts off Riley's greeting** — keep at 1500.

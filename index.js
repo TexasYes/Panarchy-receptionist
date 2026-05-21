@@ -80,7 +80,7 @@ const HUBSPOT_API_KEY     = process.env.HUBSPOT_API_KEY;
 const PORT                = process.env.PORT || 3000;
 const SHEET_ID            = process.env.GOOGLE_SHEET_ID || '1iPluCrn4fVbjtuQKJdLz0lj89WfHW-b4uv2yBfablH8';
 const SHEET_RANGE         = 'Sheet1!A:F'; // name, phone, email, conditions, gender (+ any future columns)
-const VAPI_SERVER_SECRET  = process.env.VAPI_SERVER_SECRET || '';  // shared secret set in Vapi dashboard
+const WEBHOOK_SHARED_SECRET = process.env.WEBHOOK_SHARED_SECRET || ''; // shared secret Bland tools send as Authorization header
 const ADMIN_API_KEY       = process.env.ADMIN_API_KEY || '';       // bearer token for /employees etc.
 
 // ── BRAND (used in email templates) ───────────────────────────────────────────
@@ -103,27 +103,20 @@ function safeEqual(a, b) {
   return crypto.timingSafeEqual(aBuf, bBuf);
 }
 
-function requireVapiSecret(req, res, next) {
-  if (!VAPI_SERVER_SECRET) {
-    console.warn(`[AUTH] VAPI_SERVER_SECRET not set — allowing ${req.method} ${req.path} from ${req.ip} (INSECURE)`);
+function requireWebhookSecret(req, res, next) {
+  if (!WEBHOOK_SHARED_SECRET) {
+    console.warn(`[AUTH] WEBHOOK_SHARED_SECRET not set — allowing ${req.method} ${req.path} from ${req.ip} (INSECURE)`);
     return next();
   }
-  // Vapi's credential UI lets you choose the header. Accept all three common
-  // shapes so we don't break if someone reconfigures the credential type:
-  //   1. x-vapi-secret: <token>            (Custom Header style)
-  //   2. Authorization: <token>            (Bearer Token, prefix disabled)
-  //   3. Authorization: Bearer <token>     (Bearer Token, prefix enabled)
-  const xvs       = req.get('x-vapi-secret') || '';
+  // Bland tools send the shared secret in the Authorization header. Accept
+  // both with and without a "Bearer " prefix so dashboard credential settings
+  // don't break the flow.
   const authRaw   = req.get('authorization') || '';
   const authToken = authRaw.replace(/^Bearer\s+/i, '');
-  if (safeEqual(xvs, VAPI_SERVER_SECRET) || safeEqual(authToken, VAPI_SERVER_SECRET)) {
+  if (safeEqual(authToken, WEBHOOK_SHARED_SECRET)) {
     return next();
   }
-  // Log which header(s) showed up so debugging mismatches is fast — never log
-  // the actual values.
-  const sawXvs  = xvs ? 'yes' : 'no';
-  const sawAuth = authRaw ? 'yes' : 'no';
-  console.warn(`[AUTH] Rejected ${req.method} ${req.path} from ${req.ip} — bad/missing secret (x-vapi-secret=${sawXvs}, authorization=${sawAuth})`);
+  console.warn(`[AUTH] Rejected ${req.method} ${req.path} from ${req.ip} — bad/missing Authorization`);
   return res.status(401).json({ error: 'Unauthorized' });
 }
 
@@ -409,7 +402,7 @@ async function searchHubSpot(companyName) {
  *     "message_to_agent": "This is a VIP client. Skip screening. Transfer immediately with priority flag."
  *   }
  */
-app.post('/lookup-client', requireVapiSecret, async (req, res) => {
+app.post('/lookup-client', requireWebhookSecret, async (req, res) => {
   const { send: respond, args } = makeResponder(req, res);
   const { company_name, caller_name } = args;
 
@@ -494,7 +487,7 @@ function getPronoun(gender) {
  *   2. Recent conversation text matched against hardcoded directory
  *   3. Transcript scan
  */
-app.post('/transfer-destination', requireVapiSecret, (req, res) => {
+app.post('/transfer-destination', requireWebhookSecret, (req, res) => {
   try {
     const body = req.body || {};
 
@@ -666,7 +659,7 @@ app.get('/employees', requireAdminKey, async (req, res) => {
  *   { "found": true, "name": "Bob Gutermuth", "email": "bobgutermuth@panarchy.io",
  *     "phone": "+15129255665" }
  */
-app.post('/lookup-employee', requireVapiSecret, async (req, res) => {
+app.post('/lookup-employee', requireWebhookSecret, async (req, res) => {
   try {
     const { send: vapiResponse, args: leArgs } = makeResponder(req, res);
     const { employee_name } = leArgs;
@@ -799,7 +792,7 @@ async function getGraphToken() {
  *   "voicemail_url":     "https://... (link to recording, if available)"
  * }
  */
-app.post('/send-message', requireVapiSecret, async (req, res) => {
+app.post('/send-message', requireWebhookSecret, async (req, res) => {
   try {
     const { send: vapiResponse, args: smArgs } = makeResponder(req, res);
 
@@ -1117,7 +1110,7 @@ async function postToControlUrl(controlUrl, payload) {
  *   - status-update: log status changes
  *   - screening-complete: handle employee accept/reject
  */
-app.post('/vapi-webhook', requireVapiSecret, async (req, res) => {
+app.post('/vapi-webhook', requireWebhookSecret, async (req, res) => {
   try {
     const message = req.body?.message || req.body;
     const type    = message?.type;
@@ -1386,7 +1379,7 @@ const TWILIO_API_KEY_SID = process.env.TWILIO_API_KEY_SID || (_existingIsApiKey 
 const TWILIO_API_KEY_SECRET = process.env.TWILIO_API_KEY_SECRET || (_existingIsApiKey ? process.env.TWILIO_AUTH_TOKEN : '');
 const TWILIO_AUTH_TOKEN = (!_existingIsApiKey ? process.env.TWILIO_AUTH_TOKEN : '') || '';
 const TWILIO_OUTBOUND_FROM = process.env.TWILIO_OUTBOUND_FROM_NUMBER || process.env.TWILIO_NUMBER;
-const SELF_BASE_URL = process.env.SELF_BASE_URL || 'https://panarchy-receptionist-webhook-production.up.railway.app';
+const SELF_BASE_URL = process.env.SELF_BASE_URL || 'https://panarchy-receptionist-production.up.railway.app';
 
 function escapeXml(s) {
   return String(s ?? '').replace(/[<>&"']/g, c => ({
@@ -1437,7 +1430,7 @@ let mostRecentScreener = null;
 // Called by Bland's `screen_and_transfer` tool. Blocks waiting for the
 // consultant's DTMF response on the screener call (up to ~50 seconds).
 // ─────────────────────────────────────────────────────────────────────────────
-app.post('/screen-and-transfer', requireVapiSecret, async (req, res) => {
+app.post('/screen-and-transfer', requireWebhookSecret, async (req, res) => {
   const { send: bResp, args } = makeResponder(req, res);
   const {
     consultant_name, consultant_phone, consultant_email,

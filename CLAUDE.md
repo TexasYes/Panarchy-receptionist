@@ -42,7 +42,7 @@ Most architectural decisions, gotchas, and rationale live in the source repo's [
 3. **Google Sheet** — create new sheet with columns `#, name, phone, gender, email, conditions`, tab named `Sheet1`. Share read-access with the Google API key. Set `GOOGLE_SHEET_ID` in `.env`.
 4. **Twilio number** — verify `+12513335665` is still owned in Twilio. If yes, unset its current voice URL (still pointing at deleted LiveKit TwiML Bin per Dialog PLAN.md).
 5. **Railway service** — create new project; connect to GitHub repo (TBD); paste env vars from `.env`. Note the generated `*.up.railway.app` hostname and set as `SELF_BASE_URL`.
-6. **Bland setup** — run `BLAND_API_KEY=... VAPI_SERVER_SECRET=... SELF_BASE_URL=https://... node scripts/setup-bland-agent.js`. This creates Panarchy-specific `lookup_employee_email` and `send_message_email` tool IDs in Bland. Save the returned IDs into `.bland-riley-production.json` under `tools: [...]`.
+6. **Bland setup** — run `BLAND_API_KEY=... WEBHOOK_SHARED_SECRET=... SELF_BASE_URL=https://... node scripts/setup-bland-agent.js`. This creates Panarchy-specific `lookup_employee_email` and `send_message_email` tool IDs in Bland. Save the returned IDs into `.bland-riley-production.json` under `tools: [...]`.
 7. **Buy Panarchy number in Bland** — Bland Dashboard → Phone Numbers → add `+12513335665` via BYOT (Twilio API SID/secret). Twilio's voice URL auto-flips to Bland's inbound.
 8. **Push the inbound config**:
    ```bash

@@ -23,7 +23,7 @@
  *   TWILIO_ACCOUNT_SID
  *   TWILIO_AUTH_TOKEN
  *   TWILIO_NUMBER             (the +15126979425 SMS-capable number)
- *   VAPI_SERVER_SECRET        (re-used to authenticate internal webhook hops)
+ *   WEBHOOK_SHARED_SECRET        (re-used to authenticate internal webhook hops)
  */
 
 const Anthropic = require('@anthropic-ai/sdk');
@@ -35,7 +35,7 @@ const ANTHROPIC_API_KEY  = process.env.ANTHROPIC_API_KEY;
 const TWILIO_ACCOUNT_SID = process.env.TWILIO_ACCOUNT_SID;
 const TWILIO_AUTH_TOKEN  = process.env.TWILIO_AUTH_TOKEN;
 const TWILIO_NUMBER      = process.env.TWILIO_NUMBER || '+15126979425';
-const VAPI_SERVER_SECRET = process.env.VAPI_SERVER_SECRET || '';
+const WEBHOOK_SHARED_SECRET = process.env.WEBHOOK_SHARED_SECRET || '';
 const SELF_BASE_URL      = process.env.SELF_BASE_URL || 'https://dialog-receptionist-webhook-production.up.railway.app';
 
 const MODEL                = 'claude-opus-4-7';
@@ -231,7 +231,7 @@ async function tool_lookup_employee_email({ employee_name }) {
       `${SELF_BASE_URL}/lookup-employee`,
       { employee_name },
       {
-        headers: { Authorization: VAPI_SERVER_SECRET, 'Content-Type': 'application/json' },
+        headers: { Authorization: WEBHOOK_SHARED_SECRET, 'Content-Type': 'application/json' },
         timeout: 5000,
       },
     );
@@ -248,7 +248,7 @@ async function tool_send_message_email(args) {
       `${SELF_BASE_URL}/send-message`,
       args,
       {
-        headers: { Authorization: VAPI_SERVER_SECRET, 'Content-Type': 'application/json' },
+        headers: { Authorization: WEBHOOK_SHARED_SECRET, 'Content-Type': 'application/json' },
         timeout: 10000,
       },
     );

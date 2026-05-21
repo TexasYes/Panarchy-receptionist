@@ -14,7 +14,7 @@
  *
  * Usage:
  *   BLAND_API_KEY=<key> SELF_BASE_URL=https://panarchy-receptionist-... \
- *   VAPI_SERVER_SECRET=<secret> node scripts/setup-bland-agent.js
+ *   WEBHOOK_SHARED_SECRET=<secret> node scripts/setup-bland-agent.js
  */
 
 const fs = require('fs');
@@ -24,8 +24,8 @@ const { spawn } = require('child_process');
 const BLAND_API_KEY = process.env.BLAND_API_KEY;
 if (!BLAND_API_KEY) { console.error('ERROR: set BLAND_API_KEY first.'); process.exit(1); }
 
-const VAPI_SERVER_SECRET = process.env.VAPI_SERVER_SECRET || '';
-const RAILWAY_BASE = process.env.SELF_BASE_URL || 'https://panarchy-receptionist-webhook-production.up.railway.app';
+const WEBHOOK_SHARED_SECRET = process.env.WEBHOOK_SHARED_SECRET || '';
+const RAILWAY_BASE = process.env.SELF_BASE_URL || 'https://panarchy-receptionist-production.up.railway.app';
 const PROMPT_FILE  = path.join(__dirname, '..', 'prompts', 'riley-bland-prompt.md');
 const AGENT_ID_FILE = path.join(__dirname, '..', '.bland-agent-id');
 const TOOL_IDS_FILE = path.join(__dirname, '..', '.bland-tool-ids.json');
@@ -119,7 +119,7 @@ function buildToolDefinitions() {
       speech: '',  // stay silent during lookup — usually <1s
       url:    `${RAILWAY_BASE}/lookup-employee`,
       method: 'POST',
-      headers: { Authorization: VAPI_SERVER_SECRET },
+      headers: { Authorization: WEBHOOK_SHARED_SECRET },
       body:   { employee_name: '{{input.employee_name}}' },
       response: {
         found:  '$.found',
@@ -164,7 +164,7 @@ function buildToolDefinitions() {
       speech: '',
       url:    `${RAILWAY_BASE}/send-message`,
       method: 'POST',
-      headers: { Authorization: VAPI_SERVER_SECRET, 'Content-Type': 'application/json' },
+      headers: { Authorization: WEBHOOK_SHARED_SECRET, 'Content-Type': 'application/json' },
       body: {
         toEmail:       '{{input.toEmail}}',
         toName:        '{{input.toName}}',

@@ -49,7 +49,7 @@ const { spawn } = require('child_process');
 const BLAND_API_KEY = process.env.BLAND_API_KEY;
 if (!BLAND_API_KEY) { console.error('ERROR: set BLAND_API_KEY first.'); process.exit(1); }
 
-const VAPI_SERVER_SECRET = process.env.VAPI_SERVER_SECRET || '';
+const WEBHOOK_SHARED_SECRET = process.env.WEBHOOK_SHARED_SECRET || '';
 const RAILWAY_BASE = process.env.SELF_BASE_URL || 'https://dialog-receptionist-webhook-production.up.railway.app';
 const PATHWAY_ID_FILE = path.join(__dirname, '..', '.bland-pathway-id');
 const COOKIE_JAR = path.join(__dirname, '..', '.bland-cf-cookies.txt');
@@ -92,7 +92,7 @@ function api(method, route, body) {
 //   `prompt` → DYNAMIC. Fed to the LLM as instructions for that node's behavior.
 //             Use when we need the model to extract vars or branch on intent.
 function buildPathway() {
-  const authHeader = VAPI_SERVER_SECRET; // sent as Authorization to our Railway webhooks
+  const authHeader = WEBHOOK_SHARED_SECRET; // sent as Authorization to our Railway webhooks
 
   const nodes = [
     // ── 1. START — greet, collect caller info, apply spell-back inline ──

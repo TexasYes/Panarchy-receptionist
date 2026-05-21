@@ -42,7 +42,7 @@ Add a second service to the existing `dialog-receptionist` Railway project:
    - `DEEPGRAM_API_KEY` (or `DEEPGRAM_API_SECRET` — agent reads either)
    - `ELEVENLABS_API_KEY`
    - `ANTHROPIC_API_KEY`
-   - `VAPI_SERVER_SECRET` (for authenticating to our Railway webhook tools)
+   - `WEBHOOK_SHARED_SECRET` (for authenticating to our Railway webhook tools)
    - `SELF_BASE_URL` (defaults to `https://dialog-receptionist-webhook-production.up.railway.app`)
 5. Deploy. Logs should show `Joined room ...` once SIP routing is configured.
 
