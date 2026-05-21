@@ -1,0 +1,34 @@
+.env
+.env.local
+.dev.vars
+*.pem
+*.key
+.DS_Store
+node_modules/
+*.zip
+*.log
+.vscode/
+.idea/
+backups/
+
+# Vapi call recordings — too large + sometimes contain caller PII
+logs/
+call-logs-*.json
+*.jsonl
+*.jsonl.gz
+
+# Stale deploy artifact + outdated docs (see PLAN.md for context)
+deploy_package/
+ANTHROPIC_API_LOCATIONS.md
+dialog-webhook-files.zip
+
+# Bland.ai local state (agent_id + tool_ids; per-developer, not shared)
+.bland-agent-id
+.bland-tool-ids.json
+
+# Bland Cloudflare cookie jar (per-machine, not shared)
+.bland-cf-cookies.txt
+
+# Python virtualenv for LiveKit agent (per-machine, not shared)
+scripts/livekit-agent/.venv/
+scripts/livekit-agent/__pycache__/

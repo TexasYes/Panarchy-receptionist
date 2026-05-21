@@ -1,0 +1,24 @@
+{
+  "name": "panarchy-receptionist-webhook",
+  "version": "1.0.0",
+  "description": "Webhook server for Panarchy AI Receptionist (cloned from dialog-receptionist 2026-05-21)",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0",
+    "axios": "^1.6.0",
+    "express": "^4.18.0",
+    "googleapis": "^171.4.0",
+    "node-cron": "^3.0.3",
+    "twilio": "^5.4.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
