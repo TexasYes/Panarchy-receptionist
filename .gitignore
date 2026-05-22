@@ -22,9 +22,10 @@ deploy_package/
 ANTHROPIC_API_LOCATIONS.md
 dialog-webhook-files.zip
 
-# Bland.ai local state (agent_id + tool_ids; per-developer, not shared)
+# Bland.ai local state (agent_id + tool_ids + encrypted_key; per-developer, not shared)
 .bland-agent-id
 .bland-tool-ids.json
+.bland-encrypted-key
 
 # Bland Cloudflare cookie jar (per-machine, not shared)
 .bland-cf-cookies.txt
