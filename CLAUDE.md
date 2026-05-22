@@ -65,6 +65,23 @@ Hardcoded `FALLBACK_EMPLOYEES` in `index.js`; Google Sheet (TODO) will override 
 | Colleen Brown | ColleenBrown@panarchy.io | +12063910085 |
 | Rhonda Bradford | RhondaBradford@panarchy.io | _TODO_ |
 
+## Bland routing model (learned 2026-05-22 during bring-up)
+
+**The `encrypted_key` is per-Twilio-account, not per-Bland-number.** Both Dialog's `+15126979425` and Panarchy's `+12513335665` live in the same Twilio account (`AC3911...`) and both use the **same** Bland inbound webhook URL in Twilio's "A call comes in" field:
+
+```
+https://server.aws.dc8.bland.ai/incoming?encrypted_key=<TWILIO-ACCT-KEY>&user_id=<BLAND-WORKSPACE-ID>&placement_group=blandshared&region=dc8
+```
+
+- `encrypted_key` = generated once per Twilio account by `POST /v1/accounts` (Bland docs: `/api-v1/post/accounts`). Stored in Bland; not regenerated when adding more numbers.
+- `user_id` = Bland workspace ID. Same for every number in that workspace.
+- Routing inside Bland happens by the `To=` field Twilio sends in the webhook payload → Bland looks up that specific number's inbound config (prompt + tools).
+
+**Implications when cloning to a new company:**
+- If using the SAME Twilio account as an existing Bland-connected company, you do NOT need to redo BYOT. Just paste the existing voice URL into the new Twilio number's "A call comes in" field — Bland routes by To=.
+- If using a NEW Twilio account: `POST /v1/accounts` with the new Twilio creds first, then `POST /v1/inbound` with `encrypted_key` header to upload the numbers. See `scripts/run-byot-twilio.sh`.
+- Bland's BYOT UI is hidden; the API path is documented at https://docs.bland.ai/tutorials/custom-twilio.
+
 ## End of session protocol
 1. Update `PLAN.md` with what was completed / what's still open.
 2. Update this `CLAUDE.md` with any new conventions discovered.

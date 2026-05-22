@@ -1,8 +1,10 @@
 # panarchy-receptionist — Active Plan
 
-## 🎯 Current state (2026-05-21)
+## 🎯 Current state (2026-05-22)
 
-**Local code clone complete; nothing deployed yet.** Files copied from `dialog-receptionist` and rebranded for Panarchy. The system will not handle any calls until the setup-checklist items in `CLAUDE.md` are run.
+**LIVE in production.** Panarchy receptionist is taking real calls on `+12513335665`. Riley answers, looks up employees from the Panarchy Google Sheet, takes messages, and emails them to the consultant with Panarchy-branded HTML (Black + Red, reversed logo). Same Bland workspace as Dialog; both numbers coexist.
+
+**One known cosmetic carryover (accepted, not blocking):** outgoing emails are sent FROM `receptionist@dialoggroup.com` (Dialog's MS Graph creds reused) — the email BODY is properly Panarchy-branded but the SMTP From header still says dialoggroup.com. Bob owns both domains; deemed acceptable 2026-05-22. To fix in a future session, do the Azure app registration on the panarchy.io tenant (Mail.Send permission, admin consent) and update the four `MS_*` env vars in Railway.
 
 ## ✅ Done (this session)
 - Cloned `dialog-receptionist/` → `panarchy-receptionist/` (excluding state, secrets, node_modules, .git)
@@ -15,28 +17,22 @@
 - `package.json` name + description updated
 - `CLAUDE.md` rewritten (50 lines instead of 335 — points to dialog-receptionist for shared knowledge)
 
-## 🔲 Open / next steps (in run-order)
+## ✅ Done 2026-05-21 / 2026-05-22 (bringing this online)
 
-1. **Get Rhonda Bradford's phone number** — last missing field in `FALLBACK_EMPLOYEES`. Vince / Mark / Colleen / Bob set 2026-05-21.
-2. ~~Brand assets~~ — DONE: `logo.png` = `docs/Panarchy_logo_reversed2.png`; `BRAND_PRIMARY=#000000` / `BRAND_ACCENT=#EF4124` per `docs/Panarchy_Brand_Guidelines.md`.
-3. **Azure app registration** for `panarchy.io` tenant — Mail.Send permission on `receptionist@panarchy.io` mailbox.
-4. ~~Create Panarchy Google Sheet~~ — DONE: `1iPluCrn4fVbjtuQKJdLz0lj89WfHW-b4uv2yBfablH8`. Make sure tab is named `Sheet1` with columns `#, name, phone, gender, email, conditions` and share with the Google API key.
-5. ~~Confirm Twilio still owns `+12513335665`~~ — DONE 2026-05-21 (Bob confirmed). Currently points at a deleted LiveKit TwiML Bin; voice URL gets unset automatically when Bland BYOTs the number.
-6. **Create new Railway service** `panarchy-receptionist-webhook` connected to a new GitHub repo. Paste env vars from `.env`. Note the `*.up.railway.app` URL.
-7. **Run `scripts/setup-bland-agent.js`** with Panarchy's env. This will:
-   - Create new `lookup_employee_email` + `send_message_email` Bland tools pointing at the Panarchy Railway URL
-   - Return new `TL-...` tool IDs — paste into `.bland-riley-production.json` `tools: [...]`
-   - Create a Bland agent (we'll attach it to the inbound number in next step)
-8. **Add `+12513335665` to Bland account** via BYOT. Twilio's voice URL flips to Bland's inbound automatically.
-9. **Push the inbound config**:
-   ```
-   curl -X POST "https://api.bland.ai/v1/inbound/+12513335665" \
-     -H "authorization: $BLAND_API_KEY" \
-     -H "Content-Type: application/json" \
-     -d @.bland-riley-production.json
-   ```
-10. **Smoke test** — call `+12513335665` from a separate phone, ask for Bob, leave a message. Verify email lands at `bobgutermuth@panarchy.io`.
-11. **Enable daily summary cron** — already wired in `index.js` (8pm CT). Verify `BLAND_API_KEY` is set in Railway and trigger manually first: `POST /daily-summary` with `Authorization: Bearer $ADMIN_API_KEY`.
+1. Brand assets — `logo.png` = `docs/Panarchy_logo_reversed2.png`; `BRAND_PRIMARY=#000000` / `BRAND_ACCENT=#EF4124` per `docs/Panarchy_Brand_Guidelines.md`
+2. Google Sheet `1iPluCrn4fVbjtuQKJdLz0lj89WfHW-b4uv2yBfablH8` (tab `Sheet1`, columns `#, name, phone, gender, email, conditions`) — Bob populated all 5 staff including gender
+3. Railway service `panarchy-receptionist-production.up.railway.app` running, env vars set (including renamed `WEBHOOK_SHARED_SECRET`)
+4. Bland tools created via `scripts/run-setup-bland.sh` — IDs saved to `.bland-tool-ids.json` and wired into `.bland-riley-production.json`
+5. Inbound prompt pushed to `+12513335665` via `scripts/run-push-inbound.sh`
+6. Twilio voice URL manually set to the shared Bland inbound webhook (same encrypted_key Dialog uses — see "Bland routing model" below)
+7. Live smoke-tested 2026-05-22 — Riley answered, took a message, email delivered
+
+## 🔲 Open / nice-to-haves
+
+- **Rhonda Bradford's phone number** — still empty in `FALLBACK_EMPLOYEES` (and presumably in the Google Sheet). Lookups for her will return phone=""; Riley still takes a message and emails her at `RhondaBradford@panarchy.io`.
+- **Azure app registration on panarchy.io tenant** — optional rebrand of the outgoing email sender from `receptionist@dialoggroup.com` to `receptionist@panarchy.io`. Email body is already Panarchy-branded; this would only change the SMTP From header. Step-by-step in this session's transcript if/when wanted.
+- **Voice quality** — accepted as inherent to Bland's `enhanced` model. Same constraints as Dialog. Don't chase further unless callers complain.
+- **Daily summary cron at 8pm CT** — already wired; will fire automatically against Panarchy's calls. Verify a few summaries land cleanly over the next week.
 
 ## 🧠 Inherited gotchas (from dialog-receptionist, still apply)
 
