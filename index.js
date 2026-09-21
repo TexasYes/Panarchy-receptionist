@@ -1924,6 +1924,11 @@ async function runDailySummary({ daysBack = 0 } = {}) {
 
   console.log(`[DAILY_SUMMARY] ${todaysCalls.length} calls in target window (of ${allCalls.length} fetched)`);
 
+  if (todaysCalls.length === 0) {
+    console.log(`[DAILY_SUMMARY] no calls in window — skipping email`);
+    return { sent: false, stats: { total: 0, messages: 0, difficulties: 0, other: 0 } };
+  }
+
   // Pull detail for each + classify
   const messages = [], difficulties = [], other = [];
   for (const c of todaysCalls) {
