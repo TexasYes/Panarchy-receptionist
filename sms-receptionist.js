@@ -38,7 +38,7 @@ const TWILIO_NUMBER      = process.env.TWILIO_NUMBER || '+15126979425';
 const WEBHOOK_SHARED_SECRET = process.env.WEBHOOK_SHARED_SECRET || '';
 const SELF_BASE_URL      = process.env.SELF_BASE_URL || 'https://dialog-receptionist-webhook-production.up.railway.app';
 
-const MODEL                = 'claude-opus-4-7';
+const MODEL                = 'claude-opus-5';   // Claude 5 family (2026-10-02); was claude-opus-4-7
 const CONVERSATION_TTL_MS  = 30 * 60 * 1000;   // 30 min idle → drop state
 const HEADSUP_TIMEOUT_MS   = 30 * 1000;        // 30 sec for employee to reply YES
 const MAX_TOOL_TURNS       = 10;               // safety bound on the agentic loop

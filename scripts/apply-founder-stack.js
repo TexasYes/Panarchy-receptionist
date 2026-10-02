@@ -31,10 +31,10 @@ const RILEY_ID = '09a90334-1570-4db2-b336-31871b1eca8a';
 // ElevenLabs voice in the Vapi dashboard (Voice tab → Voice dropdown) once
 // the stack is live; common professional choices: Sarah, Rachel, Bella.
 const TARGET_MODEL_PROVIDER       = 'openai';
-const TARGET_MODEL                = 'gpt-4.1';
+const TARGET_MODEL                = 'gpt-6.1-sol';   // 2026-10-02: was gpt-4.1
 const TARGET_TRANSCRIBER_PROVIDER = 'deepgram';
 const TARGET_VOICE_PROVIDER       = '11labs';      // Vapi's identifier for ElevenLabs
-const TARGET_VOICE_MODEL          = 'eleven_v3';
+const TARGET_VOICE_MODEL          = 'eleven_v4_turbo';   // 2026-10-02: was eleven_v3 (previous generation)
 
 const https = require('https');
 

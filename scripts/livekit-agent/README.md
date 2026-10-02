@@ -9,9 +9,9 @@ See `PLAN.md` (repo root) for the full 3-way Vapi/Bland/LiveKit context.
 +12513335665 (Twilio)  →  SIP trunk  →  LiveKit room
                                             ↓ joins as participant
                                        agent.py (this dir)
-                                            ├── STT: Deepgram nova-2
-                                            ├── LLM: Claude Opus 4.7
-                                            ├── TTS: ElevenLabs (turbo_v2_5; v3 with Creator tier)
+                                            ├── STT: Deepgram nova-3
+                                            ├── LLM: Claude Opus 5 (LLM_PROVIDER switch: gpt-6.1-sol / grok-4.20)
+                                            ├── TTS: ElevenLabs eleven_v4_turbo
                                             └── Tools: HTTP → Railway endpoints
 ```
 

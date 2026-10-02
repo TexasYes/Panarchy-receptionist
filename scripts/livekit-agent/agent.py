@@ -4,9 +4,9 @@ Riley — Dialog AI Receptionist (LiveKit Agents).
 Real-time voice agent that joins a LiveKit room when an inbound SIP call lands.
 Pipeline:
     Twilio number → SIP trunk → LiveKit room → this agent
-        STT:  Deepgram (nova-2)
-        LLM:  Anthropic Claude Opus 4.7
-        TTS:  ElevenLabs (v3 if Creator tier, v2 fallback otherwise)
+        STT:  Deepgram (nova-3; flux-general-en is Deepgram's voice-agent model if the plugin supports it)
+        LLM:  Anthropic Claude Opus 5 (or OpenAI gpt-6.1-sol / xAI grok-4.20 non-reasoning via LLM_PROVIDER)
+        TTS:  ElevenLabs eleven_v4_turbo (eleven_turbo_v2_5 is deprecated)
         VAD:  Silero
     Tools (function calls): hit our existing Railway webhook endpoints.
 
@@ -83,15 +83,16 @@ LLM_MODEL_OVERRIDE = os.environ.get("LLM_MODEL", "").strip()
 
 # Per-provider defaults — chosen for voice latency + instruction-following quality.
 # Override via LLM_MODEL env var if needed.
-# Grok default: `grok-4-1-fast-non-reasoning`. Reasoning models add 1-3s of TTFB
+# Grok default: `grok-4.20-0309-non-reasoning`. Reasoning models add 1-3s of TTFB
 # (the model "thinks" before responding), which is too much for phone latency.
-# Non-reasoning is closer to xAI's voice-tuned spec. Set LLM_MODEL=grok-4-1-fast-reasoning
-# to get the reasoning ("Voice Think Fast 1.0") variant if instruction-following
-# matters more than latency.
+# Set LLM_MODEL=grok-4.20-0309-reasoning if instruction-following matters more than
+# latency, or grok-voice-think-fast-2.0 for xAI's speech-tuned model.
+# Model ids refreshed 2026-10-02 against each vendor's model list (previously
+# claude-opus-4-7 / gpt-4o / grok-4-1-fast-non-reasoning).
 _DEFAULT_MODELS = {
-    "anthropic": "claude-opus-4-7",
-    "openai": "gpt-4o",
-    "grok": "grok-4-1-fast-non-reasoning",
+    "anthropic": "claude-opus-5",
+    "openai": "gpt-6.1-sol",
+    "grok": "grok-4.20-0309-non-reasoning",
 }
 
 
@@ -285,10 +286,10 @@ async def entrypoint(ctx: JobContext):
     )
 
     session = AgentSession(
-        stt=deepgram.STT(model="nova-2", language="en-US"),
+        stt=deepgram.STT(model="nova-3", language="en-US"),   # was nova-2 (2026-10-02)
         llm=_make_llm(),  # provider chosen by LLM_PROVIDER env var
         tts=elevenlabs.TTS(
-            model="eleven_turbo_v2_5",  # fast, natural; upgrade to eleven_v3 once on Creator tier
+            model="eleven_v4_turbo",  # ElevenLabs' real-time model (2026-10-02); eleven_turbo_v2_5 is deprecated
             voice_id="EXAVITQu4vr4xnSDxMaL",  # Sarah — clear professional female; swap via env var if desired
         ),
         vad=silero.VAD.load(),

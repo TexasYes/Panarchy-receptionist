@@ -30,6 +30,29 @@ Most architectural decisions, gotchas, and rationale live in the source repo's [
 - `.env.example` — Panarchy defaults
 - `logo.png` — set to `docs/Panarchy_logo_reversed2.png` (white wordmark + red bird, on dark BG). Swap for a different variant if email background changes.
 
+## Model currency (reviewed 2026-10-02, same pass as dialog-receptionist)
+- **Bland (the live phone line) is deliberately untouched** — Bob: "leave Bland alone". The inbound config on
+  `+12513335665` still runs `model: enhanced` with Bland's default voice at speed 0.7.
+- The only files that name AI models are dormant: `sms-receptionist.js` → `claude-opus-5` (was `claude-opus-4-7`);
+  LiveKit agent defaults → `claude-opus-5` / `gpt-6.1-sol` / `grok-4.20-0309-non-reasoning`, Deepgram `nova-3`,
+  ElevenLabs `eleven_v4_turbo` (`eleven_turbo_v2_5` is deprecated); Vapi-era scripts → `gpt-6.1-sol` /
+  `eleven_v4_turbo`. Ids were checked against each vendor's own model page that day — do not trust third-party
+  "latest model" articles. The four LiveKit/Vapi scripts are byte-for-byte the Dialog versions except the secret
+  name (`WEBHOOK_SHARED_SECRET` here, `VAPI_SERVER_SECRET` there) — keep them in step when one repo changes.
+- **Vapi is NOT part of this stack** (never was — Panarchy went live on Bland). Railway still carries
+  `VAPI_PRIVATE_KEY`, `RILEY_ASSISTANT_ID`, `SCREENER_ASSISTANT_ID`, `HUBSPOT_API_KEY` from the Dialog clone; nothing
+  reads them on the call path.
+- **The SMS receptionist is dormant** and its Claude call cannot work today even if revived: the Railway
+  `ANTHROPIC_API_KEY` is the same key Dialog had — it belongs to an Anthropic organization that has been disabled
+  (400 "This organization has been disabled" on a live `claude-opus-5` call via `railway run`, 2026-10-02). Also
+  `TWILIO_ACCOUNT_SID` on Railway is an `SK…` API-key SID, so `sms-receptionist.js` builds no Twilio client
+  (`index.js` handles the SK case via `TWILIO_AC_SID`, the SMS module does not). Replace the key with
+  `railway variables --service Panarchy-receptionist --set "ANTHROPIC_API_KEY=…"` when SMS is revived.
+- **GitHub → Railway auto-deploy works here** (unlike Dialog's until 2026-10-02): the 2026-09-21 push deployed
+  itself within seconds. Railway project `panarchy-receptionist`, service **`Panarchy-receptionist`** (capital P —
+  the CLI is case-sensitive), environment `production`. `railway link --project panarchy-receptionist` from this
+  folder, then `railway run --service Panarchy-receptionist node <script>` tests a secret without printing it.
+
 ## What's still Dialog-flavored (intentional carryover)
 - All `scripts/` (`setup-bland-agent.js`, `vapi-audit.js`, etc.) — same code paths, just need different env vars at run-time
 - `legal.js`, `sms-receptionist.js` — Dialog-era modules, dormant; ignore unless reviving

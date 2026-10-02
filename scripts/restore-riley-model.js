@@ -14,7 +14,7 @@ const VAPI_KEY = process.env.VAPI_PRIVATE_KEY;
 if (!VAPI_KEY) { console.error('ERROR: set VAPI_PRIVATE_KEY first.'); process.exit(1); }
 
 const RILEY_ID = '09a90334-1570-4db2-b336-31871b1eca8a';
-const TARGET_MODEL = 'gpt-4o';
+const TARGET_MODEL = 'gpt-6.1-sol';   // 2026-10-02: was gpt-4o
 
 const https = require('https');
 
