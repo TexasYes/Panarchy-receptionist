@@ -4,8 +4,9 @@
 - Refreshed every Claude / OpenAI / Grok / Deepgram / ElevenLabs id in the dormant modules and scripts
   (`sms-receptionist.js`, `scripts/livekit-agent/*`, `scripts/apply-founder-stack.js`, `scripts/restore-riley-model.js`,
   `.env.example`). Bland left exactly as it was. Details in `CLAUDE.md` → "Model currency".
-- Found: Railway `ANTHROPIC_API_KEY` belongs to a disabled Anthropic org (same dead key Dialog had). Only the dormant SMS
-  module uses it. **Open:** replace it on Railway when/if SMS is revived (and set `TWILIO_AC_SID`, fix Twilio SMS URL).
+- Found: Railway `ANTHROPIC_API_KEY` belonged to a disabled Anthropic org (same dead key Dialog had). **Bob replaced it
+  the same day; verified with a live `claude-opus-5` call via `railway run`.** Only the dormant SMS module uses it.
+  **Still open for SMS revival:** set `TWILIO_AC_SID` (an `AC…` SID) on Railway and point Twilio's SMS URL at `/sms-webhook`.
 - Confirmed: GitHub push → Railway auto-deploy works for this repo (2026-09-21 push deployed itself).
 - Confirmed: Vapi is not part of the stack; leftover Railway vars (`VAPI_PRIVATE_KEY`, `RILEY_ASSISTANT_ID`,
   `SCREENER_ASSISTANT_ID`, `HUBSPOT_API_KEY`) are unused. Candidates for cleanup, Bob's call.

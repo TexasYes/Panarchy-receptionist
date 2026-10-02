@@ -42,12 +42,14 @@ Most architectural decisions, gotchas, and rationale live in the source repo's [
 - **Vapi is NOT part of this stack** (never was — Panarchy went live on Bland). Railway still carries
   `VAPI_PRIVATE_KEY`, `RILEY_ASSISTANT_ID`, `SCREENER_ASSISTANT_ID`, `HUBSPOT_API_KEY` from the Dialog clone; nothing
   reads them on the call path.
-- **The SMS receptionist is dormant** and its Claude call cannot work today even if revived: the Railway
-  `ANTHROPIC_API_KEY` is the same key Dialog had — it belongs to an Anthropic organization that has been disabled
-  (400 "This organization has been disabled" on a live `claude-opus-5` call via `railway run`, 2026-10-02). Also
-  `TWILIO_ACCOUNT_SID` on Railway is an `SK…` API-key SID, so `sms-receptionist.js` builds no Twilio client
-  (`index.js` handles the SK case via `TWILIO_AC_SID`, the SMS module does not). Replace the key with
-  `railway variables --service Panarchy-receptionist --set "ANTHROPIC_API_KEY=…"` when SMS is revived.
+- **Anthropic key replaced 2026-10-02.** The Railway `ANTHROPIC_API_KEY` was the same key Dialog had, belonging to an
+  Anthropic organization that has been disabled (400 "This organization has been disabled" on a live call). Bob set
+  a new key with `railway variables --service Panarchy-receptionist --set "ANTHROPIC_API_KEY=…"`; verified the same
+  day with a live `claude-opus-5` call through `railway run` (answered `end_turn`). There is no local `.env` in this
+  folder — the key lives only on Railway.
+- **The SMS receptionist is still dormant:** `TWILIO_ACCOUNT_SID` on Railway is an `SK…` API-key SID, so
+  `sms-receptionist.js` builds no Twilio client (`index.js` handles the SK case via `TWILIO_AC_SID`, the SMS module
+  does not), and Twilio's SMS URL has never been pointed at `/sms-webhook`.
 - **GitHub → Railway auto-deploy works here** (unlike Dialog's until 2026-10-02): the 2026-09-21 push deployed
   itself within seconds. Railway project `panarchy-receptionist`, service **`Panarchy-receptionist`** (capital P —
   the CLI is case-sensitive), environment `production`. `railway link --project panarchy-receptionist` from this
