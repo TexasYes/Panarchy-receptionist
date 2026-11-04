@@ -52,7 +52,7 @@
 - **`block_interruptions: true` blocks legitimate caller responses** — keep null/false.
 - **`interruption_threshold: 100` cuts off Riley's greeting** — keep at 1500.
 - **`voice_settings.speed: 0.7`** is Dialog's caller-tested value; revisit if Panarchy callers complain.
-- **Railway uses `npm ci`** — keep `package-lock.json` in sync with `package.json` or deploy fails.
+- **No lockfile in this repo** (inherited "Railway uses `npm ci`" note was Dialog's; here Railway runs `npm install` and the 2026-09-21 and 2026-10-02 deploys succeeded without one — audit 2026-11-04). Add `package-lock.json` only if you want reproducible installs; then keep it in sync.
 - **Long-running endpoints (`/daily-summary`) must return 202 + process in background** — Railway edge timeout otherwise kills the request.
 
 ## 🔄 Deferred (carried over from Dialog's open items)
